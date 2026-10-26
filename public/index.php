@@ -1,7 +1,26 @@
 <?php
 declare(strict_types=1);
 
-session_start();
+require __DIR__ . '/../config/env.php';
+require __DIR__ . '/../config/database.php';
+
+$sessionDriver = $_ENV['SESSION_DRIVER'] ?? (getenv('VERCEL') === '1' ? 'mysql' : 'file');
+if ($sessionDriver === 'mysql') {
+    require_once __DIR__ . '/../app/Core/DatabaseSessionHandler.php';
+    session_set_save_handler(new App\Core\DatabaseSessionHandler($pdo), true);
+}
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    $forwardedProto = strtolower(trim(explode(',', $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')[0]));
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $forwardedProto === 'https';
+    session_set_cookie_params([
+        'secure' => $isHttps,
+        'httponly' => true,
+        'samesite' => 'Lax',
+        'path' => '/',
+    ]);
+    session_start();
+}
 
 // Autoload sangat sederhana
 spl_autoload_register(function ($class) {
@@ -26,10 +45,6 @@ use App\Controllers\PerhitunganController;
 use App\Controllers\PeringkatController;
 use App\Controllers\ProfileController;
 use App\Controllers\UserController;
-
-// Require config
-require __DIR__ . '/../config/env.php';
-require __DIR__ . '/../config/database.php';
 
 // Router
 $router = new Router();

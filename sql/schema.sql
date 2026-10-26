@@ -10,6 +10,14 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 1b) Persistent PHP sessions for serverless deployments
+CREATE TABLE app_sessions (
+  session_id VARCHAR(128) NOT NULL PRIMARY KEY,
+  session_data MEDIUMBLOB NOT NULL,
+  expires_at DATETIME NOT NULL,
+  KEY ix_app_sessions_expires_at (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- 2) guru
 CREATE TABLE guru (
   id_guru INT AUTO_INCREMENT PRIMARY KEY,

@@ -1,0 +1,7 @@
+.env
+.env.*
+!.env.example
+spk_evaluasikinerjaguru.sql
+public/uploads/
+Aksi
+tmp_view_snippet.txt
