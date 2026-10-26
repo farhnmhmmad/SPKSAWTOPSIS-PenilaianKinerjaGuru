@@ -6,6 +6,9 @@ if (is_array($processEnvironment)) {
         $_ENV[$key] = (string)$value;
     }
 }
+if (getenv('VERCEL') === '1') {
+    ini_set('display_errors', '0');
+}
 
 $envPath = __DIR__ . '/../.env';
 // Vercel injects environment variables into the function process; never fall

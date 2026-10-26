@@ -31,15 +31,21 @@ try {
             }
             $sslCa = $sslCaPath;
         }
-        $options[PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
-        if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
-            $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
+        if (class_exists('Pdo\\Mysql')) {
+            $options[constant('Pdo\\Mysql::ATTR_SSL_CA')] = $sslCa;
+            if (defined('Pdo\\Mysql::ATTR_SSL_VERIFY_SERVER_CERT')) {
+                $options[constant('Pdo\\Mysql::ATTR_SSL_VERIFY_SERVER_CERT')] = true;
+            }
+        } else {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
+            if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+                $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
+            }
         }
     }
 
     $pdo = new PDO($dsn, $dbUser, $dbPass, $options);
 } catch (Throwable $e) {
-    error_log('Database connection failed (' . (string)$e->getCode() . '): ' . $e->getMessage());
     http_response_code(500);
     $debug = filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOLEAN);
     echo $debug
