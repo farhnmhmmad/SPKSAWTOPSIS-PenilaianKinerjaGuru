@@ -39,6 +39,7 @@ try {
 
     $pdo = new PDO($dsn, $dbUser, $dbPass, $options);
 } catch (Throwable $e) {
+    error_log('Database connection failed (' . (string)$e->getCode() . '): ' . $e->getMessage());
     http_response_code(500);
     $debug = filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOLEAN);
     echo $debug
