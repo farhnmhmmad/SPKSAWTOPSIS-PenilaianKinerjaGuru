@@ -1,0 +1,25 @@
+# Disable directory listing and set default index
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # If the app is deployed in a subfolder, set RewriteBase accordingly.
+    # Example for domain.com/SPK_Evaluasi/:
+    # RewriteBase /SPK_Evaluasi/
+
+    # Serve existing files and directories as-is (e.g., /uploads/*)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Route everything else to the front controller
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Block access to environment files if any end up under public
+<Files ".env">
+    Require all denied
+</Files>
+
