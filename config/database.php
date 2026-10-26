@@ -14,8 +14,16 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES => false,
     ];
-    if (!empty($_ENV['DB_SSL_CA'])) {
-        $sslCa = trim($_ENV['DB_SSL_CA']);
+    $sslCa = trim((string)($_ENV['DB_SSL_CA'] ?? ''));
+    if ($sslCa === '' && getenv('VERCEL') === '1') {
+        foreach ([__DIR__ . '/certs/isrg-root-x1.pem', '/etc/pki/tls/certs/ca-bundle.crt', '/etc/ssl/certs/ca-certificates.crt', '/etc/ssl/cert.pem'] as $systemCa) {
+            if (is_file($systemCa)) {
+                $sslCa = $systemCa;
+                break;
+            }
+        }
+    }
+    if ($sslCa !== '') {
         if (str_contains($sslCa, '-----BEGIN CERTIFICATE-----')) {
             $sslCaPath = sys_get_temp_dir() . '/spk-mysql-ca-' . substr(hash('sha256', $sslCa), 0, 16) . '.pem';
             if (!is_file($sslCaPath) && file_put_contents($sslCaPath, $sslCa) === false) {
